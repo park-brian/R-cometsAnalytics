@@ -1,10 +1,11 @@
-#' Read in CSV files and create an Excell file that's formatted for input into Comets Analytics
-#' Once the output Excell file is created, users will need to go in and complete
-#' the sheets 'VarMap' and 'Models'
+#' Read in files and create an Excel file that's formatted for input into Comets Analytics
+#' If ths function was run locally,  users will need to edit the excel file to: (1) complete
+#' variable mapping in the sheets 'VarMap'; and (2) if needed, modify 'models' sheet.
+#' @TODO i think we want the varmap from the web interface here, should be passed from interface
 #' @param template template file to be used with preset parameters (options: 'age' or 'basic')
-#' @param filenames names of CSV files, including path, of 
-#'	1) metabolite meta data (metabolite names in first column, then meta information in other columns),
-#'      2) metabolite abundances (sample_id as first column, then metabolites as other columns), 
+#' @param filenames names of files, including path and type, of
+#'	    1) metabolite meta data (metabolite names in first column, then meta information in other columns),
+#'      2) metabolite abundances (sample_id as first column, then metabolites as other columns),
 #'      3) subject meta data (sample_id as first column, then meta information)
 #' 	The filenames MUST BE IN THE ORDER SPECIFIED ABOVE
 #' @param varmap data.frame with the id names for subjects, metabolites, and other meta information.
@@ -23,7 +24,7 @@
 #' filenames <- list(metabfile=metabfile, abundancesfile=abundancesfile, subjfile=subjfile)
 #' varmap=data.frame(metabolite_id="METABID", id="ID",
 #'         age="AGE",bmi="BMI")
-#' createCOMETSinput(filenames=filenames, 
+#' createCOMETSinput(filenames=filenames,
 #'       outputfile="MyData.xlsx")
 #' @export
 
@@ -89,19 +90,19 @@ createCOMETSinput <- function(template="age",filenames=NULL,varmap=NULL,
 #  else {
 	# Write the Metabolite sheet
         metab=utils::read.csv(metabfile,check.names=FALSE)
-	rio::export(metab,outputfile,which="Metabolites")
+	      rio::export(metab,outputfile,which="Metabolites")
 #	xlsx::write.xlsx(metab,outputfile,sheetName="Metabolites",
 #		row.names=FALSE,showNA=FALSE)
 
         # Write the SubjectMetabolites sheet
-	abund=utils::read.csv(abundancesfile,check.names=FALSE)
+	abund=rio::import(abundancesfile,check.names=FALSE)
 	rio::export(abund,outputfile,which="SubjectMetabolites",overwrite=FALSE)
 #        xlsx::write.xlsx(abund,outputfile,sheetName="SubjectMetabolites",
 #		row.names=FALSE,append=TRUE,showNA=FALSE)
 
 	# Write the SubjectData sheet
-	subj=utils::read.csv(subjfile,check.names=FALSE)
-	rio::export(subj,outputfile,which="SubjectData",overwrite=FALSE) 
+	subj=rio::import(subjfile,check.names=FALSE)
+	rio::export(subj,outputfile,which="SubjectData",overwrite=FALSE)
 #       xlsx::write.xlsx(subj,outputfile,sheetName="SubjectData",row.names=FALSE,
 #		append=TRUE,showNA=FALSE)
 
